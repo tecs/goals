@@ -1,0 +1,33 @@
+{
+    "name": "goals",
+    "version": "1.0.0",
+    "description": "A longer-term TODO app",
+    "main": "index.html",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "http-server"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/tecs/goals.git"
+    },
+    "keywords": [
+      "todo",
+      "productivity",
+      "goals",
+      "planning"
+    ],
+    "author": "Alexander Ivanov",
+    "license": "MIT",
+    "bugs": {
+      "url": "https://github.com/tecs/goals/issues"
+    },
+    "homepage": "https://github.com/tecs/goals#readme",
+    "dependencies": {
+      "bower": "^1.8.0"
+    },
+    "devDependencies": {
+      "gulp": "^3.9.1",
+      "gulp-sass": "^3.1.0"
+    }
+  }

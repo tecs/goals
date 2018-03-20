@@ -1,0 +1,28 @@
+{
+  "name": "goals",
+  "description": "A longer-term TODO app",
+  "main": "index.html",
+  "authors": [
+    "Alexander Ivanov"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "todo",
+    "productivity",
+    "goals",
+    "planning"
+  ],
+  "homepage": "https://github.com/tecs/goals",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "data-store": "https://github.com/tecs/data-store.git",
+    "html-imports": "https://github.com/webcomponents/html-imports.git"
+  }
+}
