@@ -52,8 +52,8 @@ const GOALS = {
             const task = GOALS.template('task');
 
             task.querySelector('input').value = store.get('value');
+            task.appendChild(GOALS.createTaskList(store));
             tasks.appendChild(task);
-            tasks.appendChild(GOALS.createTaskList(store));
         };
 
         for (const key of tasksStore.keys()) {
