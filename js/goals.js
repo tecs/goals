@@ -54,6 +54,12 @@ const GOALS = {
             task.querySelector('input').value = store.get('value');
             task.appendChild(GOALS.createTaskList(store));
             tasks.appendChild(task);
+
+            task.querySelector('button').addEventListener('click', () => {
+                tasksStore.unset(store.get('key'));
+                tasksStore.commit();
+                tasks.removeChild(task);
+            });
         };
 
         for (const key of tasksStore.keys()) {
@@ -68,7 +74,7 @@ const GOALS = {
             }
 
             const key = tasksStore.findFreeKey('');
-            tasksStore.set(key, {value});
+            tasksStore.set(key, {key, value});
             tasksStore.commit();
 
             newTask(tasksStore.ns(key));
