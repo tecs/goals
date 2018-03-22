@@ -1,4 +1,6 @@
 const GOALS = {
+    store: new DataStore('goals'),
+
     /**
      * A caching wrapper around `document.getElementById()`.
      * @param {String} name
@@ -27,9 +29,10 @@ const GOALS = {
 
     /**
      * Constructs a task list based on the supplied configuration data, or creates a new one.
+     * @param {DataStore} store
      * @returns {HTMLElement}
      */
-    createTaskList()
+    createTaskList(store)
     {
         const taskList = GOALS.template('taskList');
         const addTask = GOALS.template('addTask');
@@ -38,13 +41,24 @@ const GOALS = {
 
         taskList.insertBefore(addTask, tasks);
 
-        const newTask = value => {
+        if (!store.has('tasks')) {
+            store.set('tasks', {});
+            store.commit();
+        }
+
+        const tasksStore = store.ns('tasks');
+
+        const newTask = store => {
             const task = GOALS.template('task');
 
-            task.querySelector('input').value = value;
+            task.querySelector('input').value = store.get('value');
             tasks.appendChild(task);
-            tasks.appendChild(GOALS.createTaskList());
+            tasks.appendChild(GOALS.createTaskList(store));
         };
+
+        for (const key of tasksStore.keys()) {
+            newTask(tasksStore.ns(key));
+        }
 
         addTask.querySelector('button').addEventListener('click', () => {
             const value = input.value.trim();
@@ -53,16 +67,17 @@ const GOALS = {
                 return false;
             }
 
-            task.querySelector('input').value = value;
-            tasks.appendChild(task);
+            const key = tasksStore.findFreeKey('');
+            tasksStore.set(key, {value});
+            tasksStore.commit();
 
-            input.value = '';
-
-            newTask(value);
+            newTask(tasksStore.ns(key));
         });
 
         return taskList;
     }
 };
 
-window.addEventListener('load', () => document.body.appendChild(GOALS.createTaskList()));
+window.addEventListener('load', () => {
+    document.body.appendChild(GOALS.createTaskList(GOALS.store));
+});
