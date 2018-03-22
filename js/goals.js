@@ -25,19 +25,30 @@ const GOALS = {
         return document.importNode(template, true).firstElementChild;
     },
 
+    /**
+     * Constructs a task list based on the supplied configuration data, or creates a new one.
+     * @returns {HTMLElement}
+     */
     createTaskList()
     {
         const taskList = GOALS.template('taskList');
         const addTask = GOALS.template('addTask');
         const tasks = taskList.querySelector('.tasks');
+        const input = addTask.querySelector('input');
 
         taskList.insertBefore(addTask, tasks);
 
-        addTask.querySelector('button').addEventListener('click', () => {
+        const newTask = value => {
             const task = GOALS.template('task');
-            const input = addTask.querySelector('input');
-            const value = input.value.trim();
 
+            task.querySelector('input').value = value;
+            tasks.appendChild(task);
+            tasks.appendChild(GOALS.createTaskList());
+        };
+
+        addTask.querySelector('button').addEventListener('click', () => {
+            const value = input.value.trim();
+            input.value = '';
             if (!value) {
                 return false;
             }
@@ -47,7 +58,9 @@ const GOALS = {
 
             input.value = '';
 
+            newTask(value);
         });
+
         return taskList;
     }
 };
