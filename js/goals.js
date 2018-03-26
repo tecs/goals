@@ -52,7 +52,8 @@ const GOALS = {
         const newTask = store => {
             const task = GOALS.template('task');
 
-            task.querySelector('input').value = store.get('value');
+            const taskInput = task.querySelector('input');
+            taskInput.value = store.get('value');
             task.appendChild(GOALS.createTaskList(store));
             tasks.appendChild(task);
 
@@ -61,6 +62,21 @@ const GOALS = {
                 tasksStore.unset(store.get('key'));
                 tasksStore.commit();
                 tasks.removeChild(task);
+            });
+
+            // Edit task
+            taskInput.addEventListener('change', () => {
+                const value = taskInput.value.trim();
+                const oldValue = store.get('value');
+                if (!value) {
+                    taskInput.value = oldValue;
+                    return false;
+                }
+
+                if (value !== oldValue) {
+                    store.set('value', value);
+                    store.commit();
+                }
             });
         };
 
