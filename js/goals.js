@@ -75,6 +75,7 @@ const GOALS = {
 
                 if (value !== oldValue) {
                     store.set('value', value);
+                    store.set('updated', Date.now());
                     store.commit();
                 }
             });
@@ -93,7 +94,13 @@ const GOALS = {
             }
 
             const key = tasksStore.findFreeKey('');
-            tasksStore.set(key, {key, value});
+            tasksStore.set(key, {
+                key,
+                value,
+                created: Date.now(),
+                updated: Date.now(),
+                completed: null
+            });
             tasksStore.commit();
 
             newTask(tasksStore.ns(key));
