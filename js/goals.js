@@ -41,6 +41,7 @@ const GOALS = {
 
         taskList.insertBefore(addTask, tasks);
 
+        // Prime an empty tasklist
         if (!store.has('tasks')) {
             store.set('tasks', {});
             store.commit();
@@ -55,6 +56,7 @@ const GOALS = {
             task.appendChild(GOALS.createTaskList(store));
             tasks.appendChild(task);
 
+            // Delete task
             task.querySelector('button').addEventListener('click', () => {
                 tasksStore.unset(store.get('key'));
                 tasksStore.commit();
@@ -66,6 +68,7 @@ const GOALS = {
             newTask(tasksStore.ns(key));
         }
 
+        // Add task
         addTask.querySelector('button').addEventListener('click', () => {
             const value = input.value.trim();
             input.value = '';
