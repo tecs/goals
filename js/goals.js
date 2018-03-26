@@ -55,7 +55,12 @@ const GOALS = {
 
             const taskInput = task.querySelector('input');
             taskInput.value = store.get('value');
-            taskWrap.appendChild(GOALS.createTaskList(store));
+
+            const taskList = GOALS.createTaskList(store);
+            const taskListAddTask = taskList.querySelector('input');
+            taskListAddTask.placeholder = taskListAddTask.placeholder.replace('task', 'subtask');
+
+            taskWrap.appendChild(taskList);
             tasks.appendChild(taskWrap);
 
             // Delete task
