@@ -50,18 +50,19 @@ const GOALS = {
         const tasksStore = store.ns('tasks');
 
         const newTask = store => {
-            const task = GOALS.template('task');
+            const taskWrap = GOALS.template('task');
+            const task = taskWrap.querySelector('div');
 
             const taskInput = task.querySelector('input');
             taskInput.value = store.get('value');
-            task.appendChild(GOALS.createTaskList(store));
-            tasks.appendChild(task);
+            taskWrap.appendChild(GOALS.createTaskList(store));
+            tasks.appendChild(taskWrap);
 
             // Delete task
             task.querySelector('button').addEventListener('click', () => {
                 tasksStore.unset(store.get('key'));
                 tasksStore.commit();
-                tasks.removeChild(task);
+                tasks.removeChild(taskWrap);
             });
 
             // Edit task

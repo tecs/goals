@@ -1,1 +1,19 @@
+.addTask, .tasks .task { position: relative; height: 30px; z-index: 1; }
+
+.addTask > input, .tasks .task > input { position: relative; display: block; box-sizing: border-box; width: 100%; height: 30px; padding: 5px; border: 1px solid black; background: white; z-index: 1; }
+
+.addTask > button, .tasks .task > button { position: absolute; top: 5px; right: 5px; height: 20px; z-index: 2; }
+
+.taskList { background: rgba(0, 0, 0, 0.1); }
+
 .tasks { padding-left: 30px; }
+
+.tasks .task > input { border: 1px solid transparent; background: transparent; }
+
+.tasks .task > input:hover { border: 1px solid rgba(0, 0, 0, 0.5); background: rgba(255, 255, 255, 0.5); }
+
+.tasks .task > input:focus { border: 1px solid black; background: white; }
+
+.tasks .task > button { display: none; }
+
+.tasks .task:hover > button { display: block; }

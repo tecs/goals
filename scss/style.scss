@@ -1,3 +1,65 @@
+$taskHeight: 30px;
+$inputPadding: $taskHeight / 6;
+$fgColor: black;
+$bgColor: white;
+
+.addTask {
+    position: relative;
+    height: $taskHeight;
+    z-index: 1;
+
+    > input {
+        position: relative;
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+        height: $taskHeight;
+        padding: $inputPadding;
+        border: 1px solid $fgColor;
+        background: $bgColor;
+        z-index: 1;
+    }
+
+    > button {
+        position: absolute;
+        top: $inputPadding;
+        right: $inputPadding;
+        height: $taskHeight - 2*$inputPadding;
+        z-index: 2;
+    }
+}
+
+.taskList {
+    background: rgba(0, 0, 0, 0.1);
+}
+
 .tasks {
     padding-left: 30px;
+
+    .task {
+        @extend .addTask;
+
+        > input {
+            border: 1px solid transparent;
+            background: transparent;
+
+            &:hover {
+                border: 1px solid rgba(0, 0, 0, 0.5);
+                background: rgba(255, 255, 255, 0.5);
+            }
+
+            &:focus {
+                border: 1px solid $fgColor;
+                background: $bgColor;
+            }
+        }
+
+        > button {
+            display: none;
+        }
+
+        &:hover > button {
+            display: block;
+        }
+    }
 }
