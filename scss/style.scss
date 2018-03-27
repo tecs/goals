@@ -1,7 +1,9 @@
 $taskHeight: 30px;
+$indentation: $taskHeight;
 $inputPadding: $taskHeight / 6;
 $fgColor: black;
 $bgColor: white;
+$iconSize: $taskHeight / 2;
 
 html, body {
     position: relative;
@@ -14,7 +16,7 @@ html, body {
     height: $taskHeight;
     z-index: 1;
 
-    > input {
+    > input[type=text] {
         position: relative;
         display: block;
         box-sizing: border-box;
@@ -24,6 +26,17 @@ html, body {
         border: 1px solid $fgColor;
         background: $bgColor;
         z-index: 1;
+    }
+
+    > input[type=checkbox] {
+        position: absolute;
+        display: block;
+        box-sizing: border-box;
+        top: ($taskHeight - $iconSize) / 2;
+        left: -($iconSize + $inputPadding);
+        width: $iconSize;
+        height: $iconSize;
+        margin: 0;
     }
 
     > button {
@@ -40,7 +53,7 @@ html, body {
 }
 
 .tasks {
-    padding-left: 30px;
+    padding-left: $indentation;
 
     .task {
         @extend .addTask;

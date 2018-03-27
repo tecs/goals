@@ -37,7 +37,7 @@ const GOALS = {
         const taskList = GOALS.template('taskList');
         const addTask = GOALS.template('addTask');
         const tasks = taskList.querySelector('.tasks');
-        const input = addTask.querySelector('input');
+        const input = addTask.querySelector('input[type=text]');
 
         taskList.insertBefore(addTask, tasks);
 
@@ -53,11 +53,16 @@ const GOALS = {
             const taskWrap = GOALS.template('task');
             const task = taskWrap.querySelector('div');
 
-            const taskInput = task.querySelector('input');
+            // Fill data
+            const taskInput = task.querySelector('input[type=text]');
             taskInput.value = store.get('value');
 
+            const completed = task.querySelector('input[type=checkbox]');
+            completed.checked = !!store.get('completed');
+
+            // Construct DOM
             const taskList = GOALS.createTaskList(store);
-            const taskListAddTask = taskList.querySelector('input');
+            const taskListAddTask = taskList.querySelector('input[type=text]');
             taskListAddTask.placeholder = taskListAddTask.placeholder.replace('task', 'subtask');
 
             taskWrap.appendChild(taskList);
@@ -84,6 +89,14 @@ const GOALS = {
                     store.set('updated', Date.now());
                     store.commit();
                 }
+            });
+
+            // Complete task
+            completed.addEventListener('change', () => {
+                const now = Date.now();
+                store.set('completed', completed.checked ? now : null);
+                store.set('updated', now);
+                store.commit();
             });
         };
 
