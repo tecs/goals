@@ -1,3 +1,5 @@
+html, body { position: relative; padding: 0; margin: 0; }
+
 .addTask, .tasks .task { position: relative; height: 30px; z-index: 1; }
 
 .addTask > input, .tasks .task > input { position: relative; display: block; box-sizing: border-box; width: 100%; height: 30px; padding: 5px; border: 1px solid black; background: white; z-index: 1; }

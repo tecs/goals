@@ -3,6 +3,12 @@ $inputPadding: $taskHeight / 6;
 $fgColor: black;
 $bgColor: white;
 
+html, body {
+    position: relative;
+    padding: 0;
+    margin: 0;
+}
+
 .addTask {
     position: relative;
     height: $taskHeight;
