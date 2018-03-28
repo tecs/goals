@@ -28,6 +28,20 @@ const GOALS = {
     },
 
     /**
+     * Adds an event listener to the supplied input element that executes a callback when the ENTER key is pressed
+     * @param {HTMLElement} input
+     * @param {Function} callback
+     */
+    onEnter(input, callback)
+    {
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                callback();
+            }
+        });
+    },
+
+    /**
      * Constructs a task list based on the supplied configuration data, or creates a new one.
      * @param {DataStore} store
      * @returns {HTMLElement}
@@ -76,7 +90,7 @@ const GOALS = {
             });
 
             // Edit task
-            taskInput.addEventListener('change', () => {
+            const editTaskFn = () => {
                 const value = taskInput.value.trim();
                 const oldValue = store.get('value');
                 if (!value) {
@@ -89,6 +103,14 @@ const GOALS = {
                     store.set('updated', Date.now());
                     store.commit();
                 }
+            };
+
+            taskInput.addEventListener('change', editTaskFn);
+
+            // Finish editing a task by pressing the ENTER key
+            GOALS.onEnter(taskInput, () => {
+                editTaskFn();
+                taskInput.blur();
             });
 
             // Complete task
@@ -105,7 +127,7 @@ const GOALS = {
         }
 
         // Add task
-        addTask.querySelector('button').addEventListener('click', () => {
+        const addTaskFn = () => {
             const value = input.value.trim();
             input.value = '';
             if (!value) {
@@ -123,7 +145,12 @@ const GOALS = {
             tasksStore.commit();
 
             newTask(tasksStore.ns(key));
-        });
+        };
+
+        addTask.querySelector('button').addEventListener('click', addTaskFn);
+
+        // Add task by pressing the ENTER key
+        GOALS.onEnter(input, addTaskFn);
 
         return taskList;
     }
