@@ -58,7 +58,7 @@ html, body {
     .task {
         @extend .addTask;
 
-        > input {
+        > input[type=text] {
             border: 1px solid transparent;
             background: transparent;
 
