@@ -84,6 +84,13 @@ const GOALS = {
 
             // Delete task
             task.querySelector('button').addEventListener('click', () => {
+                let message = 'Are you sure you want to delete this task';
+                if (Object.keys(store.get('tasks')).length) {
+                    message += ' and all of its subtasks';
+                }
+                if (!confirm(`${message}?`)) {
+                    return;
+                }
                 tasksStore.unset(store.get('key'));
                 tasksStore.commit();
                 tasks.removeChild(taskWrap);
