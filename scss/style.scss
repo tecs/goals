@@ -73,6 +73,18 @@ html, body {
             }
         }
 
+        > span {
+            position: absolute;
+            pointer-events: none;
+            top: $inputPadding;
+            right: $inputPadding;
+            z-index: 2;
+        }
+
+        &:span > button {
+            display: none;
+        }
+
         > button {
             display: none;
         }

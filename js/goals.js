@@ -42,6 +42,23 @@ const GOALS = {
     },
 
     /**
+     * Recursively calculates the completion of a task
+     * @param {DataStore}
+     * @returns {Number}
+     */
+    calculateCompletion(store)
+    {
+        const tasks = store.ns('tasks');
+        const keys = tasks.keys();
+
+        if (!keys.length) {
+            return store.get('completed') ? 1 : 0;
+        }
+
+        return keys.reduce((total, key) => total + GOALS.calculateCompletion(tasks.ns(key)), 0) / keys.length;
+    },
+
+    /**
      * Constructs a task list based on the supplied configuration data, or creates a new one.
      * @param {DataStore} store
      * @returns {HTMLElement}
@@ -74,6 +91,9 @@ const GOALS = {
             const completed = task.querySelector('input[type=checkbox]');
             completed.checked = !!store.get('completed');
 
+            const span = task.querySelector('span');
+            span.innerText = `${Math.round(GOALS.calculateCompletion(store)*100)}%`;
+
             // Construct DOM
             const taskList = GOALS.createTaskList(store);
             const taskListAddTask = taskList.querySelector('input[type=text]');
@@ -94,6 +114,10 @@ const GOALS = {
                 tasksStore.unset(store.get('key'));
                 tasksStore.commit();
                 tasks.removeChild(taskWrap);
+            });
+
+            task.addEventListener('completion', () => {
+                span.innerText = `${Math.round(GOALS.calculateCompletion(store)*100)}%`;
             });
 
             // Edit task
@@ -126,6 +150,7 @@ const GOALS = {
                 store.set('completed', completed.checked ? now : null);
                 store.set('updated', now);
                 store.commit();
+                task.dispatchEvent(new Event('completion'));
             });
         };
 

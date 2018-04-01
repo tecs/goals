@@ -18,6 +18,10 @@ html, body { position: relative; padding: 0; margin: 0; }
 
 .tasks .task > input[type=text]:focus { border: 1px solid black; background: white; }
 
+.tasks .task > span { position: absolute; pointer-events: none; top: 5px; right: 5px; z-index: 2; }
+
+.tasks .task:span > button { display: none; }
+
 .tasks .task > button { display: none; }
 
 .tasks .task:hover > button { display: block; }
