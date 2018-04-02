@@ -50,12 +50,16 @@ const GOALS = {
     {
         const tasks = store.ns('tasks');
         const keys = tasks.keys();
+        const out = {
+            toString() {return `${Math.round(this.v * 100)}%`},
+            v: store.get('completed') ? 1 : 0
+        };
 
-        if (!keys.length) {
-            return store.get('completed') ? 1 : 0;
+        if (keys.length && !out.value) {
+            out.v = keys.reduce((total, key) => total + GOALS.calculateCompletion(tasks.ns(key)).v, 0) / keys.length;
         }
 
-        return keys.reduce((total, key) => total + GOALS.calculateCompletion(tasks.ns(key)), 0) / keys.length;
+        return out;
     },
 
     /**
@@ -92,7 +96,7 @@ const GOALS = {
             completed.checked = !!store.get('completed');
 
             const span = task.querySelector('span');
-            span.innerText = `${Math.round(GOALS.calculateCompletion(store)*100)}%`;
+            span.innerText = GOALS.calculateCompletion(store);
 
             // Construct DOM
             const taskList = GOALS.createTaskList(store);
@@ -117,7 +121,7 @@ const GOALS = {
             });
 
             task.addEventListener('completion', () => {
-                span.innerText = `${Math.round(GOALS.calculateCompletion(store)*100)}%`;
+                span.innerText = GOALS.calculateCompletion(store);
             });
 
             // Edit task
