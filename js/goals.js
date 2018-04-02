@@ -120,8 +120,10 @@ const GOALS = {
                 tasks.removeChild(taskWrap);
             });
 
-            task.addEventListener('completion', () => {
-                span.innerText = GOALS.calculateCompletion(store);
+            window.addEventListener('message', e => {
+                if (e.data === 'goals.completion') {
+                    span.innerText = GOALS.calculateCompletion(store);
+                }
             });
 
             // Edit task
@@ -154,7 +156,7 @@ const GOALS = {
                 store.set('completed', completed.checked ? now : null);
                 store.set('updated', now);
                 store.commit();
-                task.dispatchEvent(new Event('completion'));
+                window.postMessage('goals.completion', '*');
             });
         };
 
