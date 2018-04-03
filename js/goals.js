@@ -127,6 +127,7 @@ const GOALS = {
                 tasksStore.unset(store.get('key'));
                 tasksStore.commit();
                 tasks.removeChild(taskWrap);
+                window.postMessage('goals.completion', '*');
             });
 
             // Edit task
