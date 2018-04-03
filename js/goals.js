@@ -82,6 +82,9 @@ const GOALS = {
             store.commit();
         }
 
+        // Notify the whole task tree so completion is updated
+        window.postMessage('goals.completion', '*');
+
         const tasksStore = store.ns('tasks');
 
         const newTask = store => {
@@ -96,7 +99,6 @@ const GOALS = {
             completed.checked = !!store.get('completed');
 
             const span = task.querySelector('span');
-            span.innerText = GOALS.calculateCompletion(store);
 
             // Construct DOM
             const taskList = GOALS.createTaskList(store);
@@ -105,6 +107,13 @@ const GOALS = {
 
             taskWrap.appendChild(taskList);
             tasks.appendChild(taskWrap);
+
+            // Calculate completion
+            window.addEventListener('message', e => {
+                if (e.data === 'goals.completion') {
+                    span.innerText = GOALS.calculateCompletion(store);
+                }
+            });
 
             // Delete task
             task.querySelector('button').addEventListener('click', () => {
@@ -118,12 +127,6 @@ const GOALS = {
                 tasksStore.unset(store.get('key'));
                 tasksStore.commit();
                 tasks.removeChild(taskWrap);
-            });
-
-            window.addEventListener('message', e => {
-                if (e.data === 'goals.completion') {
-                    span.innerText = GOALS.calculateCompletion(store);
-                }
             });
 
             // Edit task
