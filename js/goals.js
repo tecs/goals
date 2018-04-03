@@ -51,7 +51,7 @@ const GOALS = {
         const tasks = store.ns('tasks');
         const keys = tasks.keys();
         const out = {
-            toString() {return `${Math.round(this.v * 100)}%`},
+            toString() {return keys.length ? `${Math.round(this.v * 100)}%` : ''},
             v: store.get('completed') ? 1 : 0
         };
 
