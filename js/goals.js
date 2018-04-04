@@ -65,9 +65,10 @@ const GOALS = {
     /**
      * Constructs a task list based on the supplied configuration data, or creates a new one.
      * @param {DataStore} store
+     * @param {HTMLElement} parent
      * @returns {HTMLElement}
      */
-    createTaskList(store)
+    createTaskList(store, parent)
     {
         const taskList = GOALS.template('taskList');
         const addTask = GOALS.template('addTask');
@@ -87,6 +88,14 @@ const GOALS = {
 
         const tasksStore = store.ns('tasks');
 
+        const updateParent = () => {
+            if (parent) {
+                parent.update();
+                return true;
+            }
+            return false;
+        };
+
         const newTask = store => {
             const taskWrap = GOALS.template('task');
             const task = taskWrap.querySelector('div');
@@ -101,12 +110,19 @@ const GOALS = {
             const span = task.querySelector('span');
 
             // Construct DOM
-            const taskList = GOALS.createTaskList(store);
+            const taskList = GOALS.createTaskList(store, task);
             const taskListAddTask = taskList.querySelector('input[type=text]');
             taskListAddTask.placeholder = taskListAddTask.placeholder.replace('task', 'subtask');
 
             taskWrap.appendChild(taskList);
             tasks.appendChild(taskWrap);
+
+            task.update = () => {
+                store.set('updated', Date.now());
+                if (!updateParent()) {
+                    store.commit();
+                }
+            };
 
             // Calculate completion
             window.addEventListener('message', e => {
@@ -126,6 +142,7 @@ const GOALS = {
                 }
                 tasksStore.unset(store.get('key'));
                 tasksStore.commit();
+                updateParent();
                 tasks.removeChild(taskWrap);
                 window.postMessage('goals.completion', '*');
             });
@@ -141,7 +158,7 @@ const GOALS = {
 
                 if (value !== oldValue) {
                     store.set('value', value);
-                    store.set('updated', Date.now());
+                    task.update();
                     store.commit();
                 }
             };
@@ -156,9 +173,8 @@ const GOALS = {
 
             // Complete task
             completed.addEventListener('change', () => {
-                const now = Date.now();
-                store.set('completed', completed.checked ? now : null);
-                store.set('updated', now);
+                store.set('completed', completed.checked ? Date.now() : null);
+                task.update();
                 store.commit();
                 window.postMessage('goals.completion', '*');
             });
@@ -189,15 +205,20 @@ const GOALS = {
             newTask(tasksStore.ns(key));
         };
 
-        addTask.querySelector('button').addEventListener('click', addTaskFn);
+        const manualAddTask = () => {
+            addTaskFn();
+            updateParent();
+        };
+
+        addTask.querySelector('button').addEventListener('click', manualAddTask);
 
         // Add task by pressing the ENTER key
-        GOALS.onEnter(input, addTaskFn);
+        GOALS.onEnter(input, manualAddTask);
 
         return taskList;
     }
 };
 
 window.addEventListener('load', () => {
-    document.body.appendChild(GOALS.createTaskList(GOALS.store));
+    document.body.appendChild(GOALS.createTaskList(GOALS.store, null));
 });
