@@ -99,6 +99,7 @@ const GOALS = {
         const newTask = store => {
             const taskWrap = GOALS.template('task');
             const task = taskWrap.querySelector('div');
+            let deleted = false;
 
             // Fill data
             const taskInput = task.querySelector('input[type=text]');
@@ -126,7 +127,7 @@ const GOALS = {
 
             // Calculate completion
             window.addEventListener('message', e => {
-                if (e.data === 'goals.completion') {
+                if (!deleted && e.data === 'goals.completion') {
                     span.innerText = GOALS.calculateCompletion(store);
                 }
             });
@@ -144,6 +145,7 @@ const GOALS = {
                 tasksStore.commit();
                 updateParent();
                 tasks.removeChild(taskWrap);
+                deleted = true;
                 window.postMessage('goals.completion', '*');
             });
 
