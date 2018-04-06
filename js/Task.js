@@ -64,8 +64,7 @@ GOALS.Task = class extends GOALS.Emitter {
 
             if (value !== oldValue) {
                 store.set('value', value);
-                this.update();
-                store.commit();
+                this.emit('update');
             }
         };
 
@@ -80,8 +79,7 @@ GOALS.Task = class extends GOALS.Emitter {
         // Complete task
         completed.addEventListener('change', () => {
             store.set('completed', completed.checked ? Date.now() : null);
-            this.update();
-            store.commit();
+            this.emit('update');
             this.emit('completion');
         });
 
@@ -111,17 +109,6 @@ GOALS.Task = class extends GOALS.Emitter {
         return this.taskList ? this.taskList.children : [];
     }
 
-    update()
-    {
-        this.store.set('updated', Date.now());
-        this.updateParent();
-    }
-
-    updateParent()
-    {
-        this.parent.updateParent();
-    }
-
     /**
      * Recursively calculates the task's completion
      * @returns {Number}
@@ -145,5 +132,11 @@ GOALS.Task = class extends GOALS.Emitter {
     {
         await this.initialized;
         this.completion.innerText = this.calculateCompletion();
+    }
+
+    async updateListener()
+    {
+        this.store.set('updated', Date.now());
+        this.store.commit();
     }
 };

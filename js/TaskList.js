@@ -47,7 +47,7 @@ GOALS.TaskList = class extends GOALS.Emitter {
 
         const manualAddTask = () => {
             addTaskFn();
-            this.updateParent();
+            this.emit('update');
         };
 
         addTask.querySelector('button').addEventListener('click', manualAddTask);
@@ -72,14 +72,6 @@ GOALS.TaskList = class extends GOALS.Emitter {
     {
         return this.taskList;
     }
-
-    updateParent()
-    {
-        if (this.parent) {
-            return this.parent.update();
-        }
-        this.store.commit();
-    };
 
     /**
      * Adds an existing or a new task to the tasklist
@@ -107,7 +99,7 @@ GOALS.TaskList = class extends GOALS.Emitter {
         this.tasksStore.unset(key);
         this.tasksList.removeChild(task);
         task.util.detach();
-        this.updateParent();
+        this.emit('update');
         this.emit('completion');
     }
 };
