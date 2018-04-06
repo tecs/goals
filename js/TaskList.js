@@ -1,13 +1,13 @@
 GOALS.TaskList = class {
     /**
-     * Constructs a task list based on the supplied configuration data, or creates a new one.
+     * @param {HTMLElement} taskList
      * @param {DataStore} store
-     * @param {HTMLElement} parentTask
-     * @returns {HTMLElement}
+     * @param {GOALS.Task} parentTask
      */
-    static create(store, parentTask)
+    constructor(taskList, store, parentTask)
     {
-        const taskList = GOALS.template('taskList');
+        Object.assign(this, {taskList, store, parentTask});
+
         const addTask = GOALS.template('addTask');
         const tasks = taskList.querySelector('.tasks');
         const input = addTask.querySelector('input[type=text]');
@@ -25,14 +25,6 @@ GOALS.TaskList = class {
 
         const tasksStore = store.ns('tasks');
 
-        const updateParent = () => {
-            if (parentTask) {
-                parentTask.update();
-                return true;
-            }
-            return false;
-        };
-
         const newTask = store => {
             const taskWrap = GOALS.template('task');
             const task = taskWrap.querySelector('div');
@@ -48,7 +40,7 @@ GOALS.TaskList = class {
             const span = task.querySelector('span');
 
             // Construct DOM
-            const taskList = this.create(store, task);
+            const taskList = GOALS.TaskList.create(store, task);
             const taskListAddTask = taskList.querySelector('input[type=text]');
             taskListAddTask.placeholder = taskListAddTask.placeholder.replace('task', 'subtask');
 
@@ -57,7 +49,7 @@ GOALS.TaskList = class {
 
             task.update = () => {
                 store.set('updated', Date.now());
-                if (!updateParent()) {
+                if (!this.updateParent()) {
                     store.commit();
                 }
             };
@@ -80,7 +72,7 @@ GOALS.TaskList = class {
                 }
                 tasksStore.unset(store.get('key'));
                 tasksStore.commit();
-                updateParent();
+                this.updateParent();
                 tasks.removeChild(taskWrap);
                 deleted = true;
                 window.postMessage('goals.completion', '*');
@@ -146,14 +138,34 @@ GOALS.TaskList = class {
 
         const manualAddTask = () => {
             addTaskFn();
-            updateParent();
+            this.updateParent();
         };
 
         addTask.querySelector('button').addEventListener('click', manualAddTask);
 
         // Add task by pressing the ENTER key
         GOALS.onEnter(input, manualAddTask);
+    }
 
+    /**
+     * Constructs a task list based on the supplied configuration data, or creates a new one.
+     * @param {DataStore} store
+     * @param {HTMLElement} parentTask
+     * @returns {HTMLElement}
+     */
+    static create(store, parentTask)
+    {
+        const taskList = GOALS.template('taskList');
+        taskList.util = new (GOALS.TaskList)(taskList, store, parentTask);
         return taskList;
     }
+
+    updateParent()
+    {
+        if (this.parentTask) {
+            this.parentTask.update();
+            return true;
+        }
+        return false;
+    };
 };
