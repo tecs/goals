@@ -24,15 +24,14 @@ GOALS.Task = class extends GOALS.Emitter {
             store,
             taskList: GOALS.TaskList.create(store, this),
             task: this.taskWrap.querySelector('div'),
-            completion: this.taskWrap.querySelector('span')
+            taskInput: this.taskWrap.querySelector('input[type=text]'),
+            completion: this.taskWrap.querySelector('span'),
+            checkbox: this.taskWrap.querySelector('input[type=checkbox]')
         });
 
         // Fill data
-        const taskInput = this.task.querySelector('input[type=text]');
-        taskInput.value = store.get('value');
-
-        const completed = this.task.querySelector('input[type=checkbox]');
-        completed.checked = !!store.get('completed');
+        this.taskInput.value = store.get('value');
+        this.checkbox.checked = !!store.get('completed');
 
         // Construct DOM
         const taskListAddTask = this.taskList.element.querySelector('input[type=text]');
@@ -41,47 +40,18 @@ GOALS.Task = class extends GOALS.Emitter {
         this.taskWrap.appendChild(this.taskList.element);
 
         // Delete task
-        this.task.querySelector('button').addEventListener('click', () => {
-            let message = 'Are you sure you want to delete this task';
-            if (Object.keys(store.get('tasks')).length) {
-                message += ' and all of its subtasks';
-            }
-            if (!confirm(`${message}?`)) {
-                return;
-            }
-            const key = store.get('key');
-            this.parent.removeTask(key);
-        });
+        this.task.querySelector('button').addEventListener('click', () => this.delete());
 
-        // Edit task
-        const editTaskFn = () => {
-            const value = taskInput.value.trim();
-            const oldValue = store.get('value');
-            if (!value) {
-                taskInput.value = oldValue;
-                return false;
-            }
-
-            if (value !== oldValue) {
-                store.set('value', value);
-                this.emitOut('update');
-            }
-        };
-
-        taskInput.addEventListener('change', editTaskFn);
+        this.taskInput.addEventListener('change', () => this.edit());
 
         // Finish editing a task by pressing the ENTER key
-        GOALS.onEnter(taskInput, () => {
-            editTaskFn();
-            taskInput.blur();
+        GOALS.onEnter(this.taskInput, () => {
+            this.edit();
+            this.taskInput.blur();
         });
 
         // Complete task
-        completed.addEventListener('change', () => {
-            store.set('completed', completed.checked ? Date.now() : null);
-            this.emitOut('update');
-            this.emitOut('completion');
-        });
+        this.checkbox.addEventListener('change', () => this.complete());
 
         this._initialize();
     }
@@ -126,6 +96,40 @@ GOALS.Task = class extends GOALS.Emitter {
         }
 
         return out;
+    }
+
+    edit()
+    {
+        const value = this.taskInput.value.trim();
+        const oldValue = this.store.get('value');
+        if (!value) {
+            this.taskInput.value = oldValue;
+            return false;
+        }
+
+        if (value !== oldValue) {
+            this.store.set('value', value);
+            this.emitOut('update');
+        }
+    }
+
+    delete()
+    {
+        let message = 'Are you sure you want to delete this task';
+        if (Object.keys(this.store.get('tasks')).length) {
+            message += ' and all of its subtasks';
+        }
+        if (confirm(`${message}?`)) {
+            const key = this.store.get('key');
+            this.parent.removeTask(key);
+        }
+    }
+
+    complete()
+    {
+        this.store.set('completed', this.checkbox.checked ? Date.now() : null);
+        this.emitOut('update');
+        this.emitOut('completion');
     }
 
     async completionListener()
