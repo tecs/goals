@@ -6,113 +6,30 @@ GOALS.TaskList = class {
      */
     constructor(taskList, store, parentTask)
     {
-        Object.assign(this, {taskList, store, parentTask});
-
-        const addTask = GOALS.template('addTask');
-        const tasks = taskList.querySelector('.tasks');
-        const input = addTask.querySelector('input[type=text]');
-
-        taskList.insertBefore(addTask, tasks);
-
         // Prime an empty tasklist
         if (!store.has('tasks')) {
             store.set('tasks', {});
             store.commit();
         }
 
+        Object.assign(this, {
+            taskList,
+            store,
+            parentTask,
+            tasksStore: store.ns('tasks'),
+            tasks: taskList.querySelector('.tasks')
+        });
+
+        const addTask = GOALS.template('addTask');
+        const input = addTask.querySelector('input[type=text]');
+
+        this.taskList.insertBefore(addTask, this.tasks);
+
         // Notify the whole task tree so completion is updated
         window.postMessage('goals.completion', '*');
 
-        const tasksStore = store.ns('tasks');
-
-        const newTask = store => {
-            const taskWrap = GOALS.template('task');
-            const task = taskWrap.querySelector('div');
-            let deleted = false;
-
-            // Fill data
-            const taskInput = task.querySelector('input[type=text]');
-            taskInput.value = store.get('value');
-
-            const completed = task.querySelector('input[type=checkbox]');
-            completed.checked = !!store.get('completed');
-
-            const span = task.querySelector('span');
-
-            // Construct DOM
-            const taskList = GOALS.TaskList.create(store, task);
-            const taskListAddTask = taskList.querySelector('input[type=text]');
-            taskListAddTask.placeholder = taskListAddTask.placeholder.replace('task', 'subtask');
-
-            taskWrap.appendChild(taskList);
-            tasks.appendChild(taskWrap);
-
-            task.update = () => {
-                store.set('updated', Date.now());
-                if (!this.updateParent()) {
-                    store.commit();
-                }
-            };
-
-            // Calculate completion
-            window.addEventListener('message', e => {
-                if (!deleted && e.data === 'goals.completion') {
-                    span.innerText = GOALS.calculateCompletion(store);
-                }
-            });
-
-            // Delete task
-            task.querySelector('button').addEventListener('click', () => {
-                let message = 'Are you sure you want to delete this task';
-                if (Object.keys(store.get('tasks')).length) {
-                    message += ' and all of its subtasks';
-                }
-                if (!confirm(`${message}?`)) {
-                    return;
-                }
-                tasksStore.unset(store.get('key'));
-                tasksStore.commit();
-                this.updateParent();
-                tasks.removeChild(taskWrap);
-                deleted = true;
-                window.postMessage('goals.completion', '*');
-            });
-
-            // Edit task
-            const editTaskFn = () => {
-                const value = taskInput.value.trim();
-                const oldValue = store.get('value');
-                if (!value) {
-                    taskInput.value = oldValue;
-                    return false;
-                }
-
-                if (value !== oldValue) {
-                    store.set('value', value);
-                    task.update();
-                    store.commit();
-                }
-            };
-
-            taskInput.addEventListener('change', editTaskFn);
-
-            // Finish editing a task by pressing the ENTER key
-            GOALS.onEnter(taskInput, () => {
-                editTaskFn();
-                taskInput.blur();
-            });
-
-            // Complete task
-            completed.addEventListener('change', () => {
-                store.set('completed', completed.checked ? Date.now() : null);
-                task.update();
-                store.commit();
-                window.postMessage('goals.completion', '*');
-            });
-        };
-
-        for (const key of tasksStore.keys()) {
-            newTask(tasksStore.ns(key));
+        for (const key of this.tasksStore.keys()) {
+            this.addTask(this.tasksStore.ns(key));
         }
 
         // Add task
@@ -123,17 +40,17 @@ GOALS.TaskList = class {
                 return false;
             }
 
-            const key = tasksStore.findFreeKey('');
-            tasksStore.set(key, {
+            const key = this.tasksStore.findFreeKey('');
+            this.tasksStore.set(key, {
                 key,
                 value,
                 created: Date.now(),
                 updated: Date.now(),
                 completed: null
             });
-            tasksStore.commit();
+            this.tasksStore.commit();
 
-            newTask(tasksStore.ns(key));
+            this.addTask(this.tasksStore.ns(key));
         };
 
         const manualAddTask = () => {
@@ -163,9 +80,23 @@ GOALS.TaskList = class {
     updateParent()
     {
         if (this.parentTask) {
-            this.parentTask.update();
-            return true;
+            return this.parentTask.update();
         }
-        return false;
+        this.store.commit();
     };
+
+    addTask(store)
+    {
+        const taskWrap = GOALS.Task.create(store, this.taskList);
+        this.tasks.appendChild(taskWrap);
+    }
+
+    removeTask(key)
+    {
+        const task = [...this.tasks.children].filter(task => task.util.store.get('key') === key)[0];
+        this.tasksStore.unset(key);
+        this.tasks.removeChild(task);
+        this.updateParent();
+        window.postMessage('goals.completion', '*');
+    }
 };
