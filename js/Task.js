@@ -1,7 +1,12 @@
 GOALS.Task = class {
     constructor(taskWrap, store, parentTaskList)
     {
-        Object.assign(this, {taskWrap, store, parentTaskList});
+        Object.assign(this, {
+            taskWrap,
+            store,
+            parentTaskList,
+            taskList: GOALS.TaskList.create(store, taskWrap)
+        });
 
         const task = taskWrap.querySelector('div');
         let deleted = false;
@@ -16,21 +21,15 @@ GOALS.Task = class {
         const span = task.querySelector('span');
 
         // Construct DOM
-        const taskList = GOALS.TaskList.create(store, task);
-        const taskListAddTask = taskList.querySelector('input[type=text]');
+        const taskListAddTask = this.taskList.querySelector('input[type=text]');
         taskListAddTask.placeholder = taskListAddTask.placeholder.replace('task', 'subtask');
 
-        taskWrap.appendChild(taskList);
-
-        task.update = () => {
-            store.set('updated', Date.now());
-            this.updateParent();
-        };
+        taskWrap.appendChild(this.taskList);
 
         // Calculate completion
         window.addEventListener('message', e => {
             if (!deleted && e.data === 'goals.completion') {
-                span.innerText = GOALS.calculateCompletion(store);
+                span.innerText = this.calculateCompletion();
             }
         });
 
@@ -59,7 +58,7 @@ GOALS.Task = class {
 
             if (value !== oldValue) {
                 store.set('value', value);
-                task.update();
+                this.update();
                 store.commit();
             }
         };
@@ -75,7 +74,7 @@ GOALS.Task = class {
         // Complete task
         completed.addEventListener('change', () => {
             store.set('completed', completed.checked ? Date.now() : null);
-            task.update();
+            this.update();
             store.commit();
             window.postMessage('goals.completion', '*');
         });
@@ -88,8 +87,38 @@ GOALS.Task = class {
         return taskWrap;
     }
 
+    get subtasks()
+    {
+        return this.taskList.util.tasks;
+    }
+
+    update()
+    {
+        this.store.set('updated', Date.now());
+        this.updateParent();
+    };
+
     updateParent()
     {
         this.parentTaskList.util.updateParent();
+    }
+
+    /**
+     * Recursively calculates the task's completion
+     * @returns {Number}
+     */
+    calculateCompletion()
+    {
+        const tasks = this.subtasks;
+        const out = {
+            toString() {return tasks.length ? `${Math.round(this.v * 100)}%` : ''},
+            v: this.store.get('completed') ? 1 : 0
+        };
+
+        if (tasks.length && !out.value) {
+            out.v = tasks.reduce((total, task) => total + task.calculateCompletion().v, 0) / tasks.length;
+        }
+
+        return out;
     }
 };

@@ -39,27 +39,6 @@ const GOALS = {
                 callback();
             }
         });
-    },
-
-    /**
-     * Recursively calculates the completion of a task
-     * @param {DataStore}
-     * @returns {Number}
-     */
-    calculateCompletion(store)
-    {
-        const tasks = store.ns('tasks');
-        const keys = tasks.keys();
-        const out = {
-            toString() {return keys.length ? `${Math.round(this.v * 100)}%` : ''},
-            v: store.get('completed') ? 1 : 0
-        };
-
-        if (keys.length && !out.value) {
-            out.v = keys.reduce((total, key) => total + GOALS.calculateCompletion(tasks.ns(key)).v, 0) / keys.length;
-        }
-
-        return out;
     }
 };
 
