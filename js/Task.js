@@ -1,4 +1,9 @@
 GOALS.Task = class {
+    /**
+     * @param {HTMLElement} taskWrap
+     * @param {DataStore} store
+     * @param {HTMLElement} parentTaskList
+     */
     constructor(taskWrap, store, parentTaskList)
     {
         // Prime an empty task
@@ -8,6 +13,7 @@ GOALS.Task = class {
             store.set('completed', null);
             store.commit();
         }
+
         Object.assign(this, {
             taskWrap,
             store,
@@ -87,6 +93,12 @@ GOALS.Task = class {
         });
     }
 
+    /**
+     * Constructs a task based on the supplied configuration data, or creates a new one.
+     * @param {DataStore} store
+     * @param {HTMLElement} parentTaskList
+     * @returns {HTMLElement}
+     */
     static create(store, parentTaskList)
     {
         const taskWrap = GOALS.template('task');
@@ -94,6 +106,9 @@ GOALS.Task = class {
         return taskWrap;
     }
 
+    /**
+     * @returns {GOALS.Task[]}
+     */
     get subtasks()
     {
         return this.taskList.util.tasks;

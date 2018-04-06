@@ -70,6 +70,9 @@ GOALS.TaskList = class {
         return taskList;
     }
 
+    /**
+     * @returns {GOALS.Task[]}
+     */
     get tasks()
     {
         return [...this.tasksList.children].map(task => task.util);
@@ -89,6 +92,10 @@ GOALS.TaskList = class {
         this.tasksList.appendChild(taskWrap);
     }
 
+    /**
+     * Removes a task from the tasklist
+     * @param {string} key
+     */
     removeTask(key)
     {
         const task = [...this.tasksList.children].filter(task => task.util.store.get('key') === key)[0];
