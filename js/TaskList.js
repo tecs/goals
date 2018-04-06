@@ -1,10 +1,12 @@
-GOALS.TaskList = class {
+GOALS.TaskList = class extends GOALS.Emitter {
     /**
      * @param {DataStore} store
-     * @param {GOALS.Task} parentTask
+     * @param {GOALS.Task} parent
      */
-    constructor(store, parentTask)
+    constructor(store, parent)
     {
+        super(parent);
+
         // Prime an empty tasklist
         if (!store.has('tasks')) {
             store.set('tasks', {});
@@ -16,7 +18,6 @@ GOALS.TaskList = class {
 
         Object.assign(this, {
             store,
-            parentTask,
             tasksStore: store.ns('tasks'),
             tasksList: this.taskList.querySelector('.tasks')
         });
@@ -27,7 +28,7 @@ GOALS.TaskList = class {
         this.taskList.insertBefore(addTask, this.tasksList);
 
         // Notify the whole task tree so completion is updated
-        window.postMessage('goals.completion', '*');
+        this.emit('completion', null, null, false);
 
         for (const key of this.tasksStore.keys()) {
             this.addTask(key);
@@ -58,12 +59,12 @@ GOALS.TaskList = class {
     /**
      * Constructs a task list based on the supplied configuration data, or creates a new one.
      * @param {DataStore} store
-     * @param {GOALS.Task} parentTask
+     * @param {GOALS.Task} parent
      * @returns {GOALS.TaskList}
      */
-    static create(store, parentTask)
+    static create(store, parent)
     {
-        return new (GOALS.TaskList)(store, parentTask);
+        return new (GOALS.TaskList)(store, parent);
     }
 
     /** @returns {HTMLElement} */
@@ -72,16 +73,10 @@ GOALS.TaskList = class {
         return this.taskList;
     }
 
-    /** @returns {GOALS.Task[]} */
-    get tasks()
-    {
-        return [...this.tasksList.children].map(task => task.util);
-    }
-
     updateParent()
     {
-        if (this.parentTask) {
-            return this.parentTask.update();
+        if (this.parent) {
+            return this.parent.update();
         }
         this.store.commit();
     };
@@ -111,7 +106,8 @@ GOALS.TaskList = class {
         const task = [...this.tasksList.children].filter(task => task.util.store.get('key') === key)[0];
         this.tasksStore.unset(key);
         this.tasksList.removeChild(task);
+        task.util.detach();
         this.updateParent();
-        window.postMessage('goals.completion', '*');
+        this.emit('completion');
     }
 };

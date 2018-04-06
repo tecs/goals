@@ -1,10 +1,14 @@
-GOALS.Task = class {
+GOALS.Task = class extends GOALS.Emitter {
     /**
      * @param {DataStore} store
-     * @param {HTMLElement} parentTaskList
+     * @param {HTMLElement} parent
      */
-    constructor(store, parentTaskList)
+    constructor(store, parent)
     {
+        super(parent);
+
+        this.initialized = new Promise(r => this._initialize = r);
+
         // Prime an empty task
         if (!store.has('created')) {
             store.set('created', Date.now());
@@ -18,13 +22,10 @@ GOALS.Task = class {
 
         Object.assign(this, {
             store,
-            parentTaskList,
             taskList: GOALS.TaskList.create(store, this),
             task: this.taskWrap.querySelector('div'),
             completion: this.taskWrap.querySelector('span')
         });
-
-        let deleted = false;
 
         // Fill data
         const taskInput = this.task.querySelector('input[type=text]');
@@ -39,13 +40,6 @@ GOALS.Task = class {
 
         this.taskWrap.appendChild(this.taskList.element);
 
-        // Calculate completion
-        window.addEventListener('message', e => {
-            if (!deleted && e.data === 'goals.completion') {
-                this.completion.innerText = this.calculateCompletion();
-            }
-        });
-
         // Delete task
         this.task.querySelector('button').addEventListener('click', () => {
             let message = 'Are you sure you want to delete this task';
@@ -56,8 +50,7 @@ GOALS.Task = class {
                 return;
             }
             const key = store.get('key');
-            parentTaskList.removeTask(key);
-            deleted = true;
+            this.parent.removeTask(key);
         });
 
         // Edit task
@@ -89,19 +82,21 @@ GOALS.Task = class {
             store.set('completed', completed.checked ? Date.now() : null);
             this.update();
             store.commit();
-            window.postMessage('goals.completion', '*');
+            this.emit('completion');
         });
+
+        this._initialize();
     }
 
     /**
      * Constructs a task based on the supplied configuration data, or creates a new one.
      * @param {DataStore} store
-     * @param {HTMLElement} parentTaskList
+     * @param {HTMLElement} parent
      * @returns {GOALS.Task}
      */
-    static create(store, parentTaskList)
+    static create(store, parent)
     {
-        return new (GOALS.Task)(store, parentTaskList);
+        return new (GOALS.Task)(store, parent);
     }
 
     /** @returns {HTMLElement} */
@@ -113,18 +108,18 @@ GOALS.Task = class {
     /** @returns {GOALS.Task[]} */
     get subtasks()
     {
-        return this.taskList.tasks;
+        return this.taskList ? this.taskList.children : [];
     }
 
     update()
     {
         this.store.set('updated', Date.now());
         this.updateParent();
-    };
+    }
 
     updateParent()
     {
-        this.parentTaskList.updateParent();
+        this.parent.updateParent();
     }
 
     /**
@@ -144,5 +139,11 @@ GOALS.Task = class {
         }
 
         return out;
+    }
+
+    async completionListener()
+    {
+        await this.initialized;
+        this.completion.innerText = this.calculateCompletion();
     }
 };
