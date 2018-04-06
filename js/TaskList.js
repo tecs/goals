@@ -23,7 +23,7 @@ GOALS.TaskList = class extends GOALS.Emitter {
         });
 
         const addTask = GOALS.template('addTask');
-        const input = addTask.querySelector('input[type=text]');
+        this.input = addTask.querySelector('input[type=text]');
 
         this.taskList.insertBefore(addTask, this.tasksList);
 
@@ -34,26 +34,16 @@ GOALS.TaskList = class extends GOALS.Emitter {
             this.addTask(key);
         }
 
-        // Add task
-        const addTaskFn = () => {
-            const value = input.value.trim();
-            input.value = '';
-            if (!value) {
-                return false;
-            }
-
-            this.addTask(null, value);
-        };
-
         const manualAddTask = () => {
-            addTaskFn();
-            this.emitOut('update');
+            if (this.addTask()) {
+                this.emitOut('update');
+            }
         };
 
         addTask.querySelector('button').addEventListener('click', manualAddTask);
 
         // Add task by pressing the ENTER key
-        GOALS.onEnter(input, manualAddTask);
+        GOALS.onEnter(this.input, manualAddTask);
     }
 
     /**
@@ -76,17 +66,23 @@ GOALS.TaskList = class extends GOALS.Emitter {
     /**
      * Adds an existing or a new task to the tasklist
      * @param {String} key
-     * @param {String} value
      */
-    addTask(key, value)
+    addTask(key)
     {
         if (!key) {
             key = this.tasksStore.findFreeKey('');
+            const value = this.input.value.trim();
+            this.input.value = '';
+            if (!value) {
+                return false;
+            }
+
             this.tasksStore.set(key, {key, value});
             this.tasksStore.commit();
         }
         const taskWrap = GOALS.Task.create(this.tasksStore.ns(key), this);
         this.tasksList.appendChild(taskWrap.element);
+        return true;
     }
 
     /**
