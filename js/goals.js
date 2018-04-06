@@ -43,5 +43,5 @@ const GOALS = {
 };
 
 window.addEventListener('load', () => {
-    document.body.appendChild(GOALS.TaskList.create(GOALS.store, null));
+    document.body.appendChild(GOALS.TaskList.create(GOALS.store, null).element);
 });
