@@ -64,7 +64,7 @@ GOALS.Task = class extends GOALS.Emitter {
 
             if (value !== oldValue) {
                 store.set('value', value);
-                this.emit('update');
+                this.emitOut('update');
             }
         };
 
@@ -79,8 +79,8 @@ GOALS.Task = class extends GOALS.Emitter {
         // Complete task
         completed.addEventListener('change', () => {
             store.set('completed', completed.checked ? Date.now() : null);
-            this.emit('update');
-            this.emit('completion');
+            this.emitOut('update');
+            this.emitOut('completion');
         });
 
         this._initialize();

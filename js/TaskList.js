@@ -28,7 +28,7 @@ GOALS.TaskList = class extends GOALS.Emitter {
         this.taskList.insertBefore(addTask, this.tasksList);
 
         // Notify the whole task tree so completion is updated
-        this.emit('completion', null, null, false);
+        this.emitOutButSelf('completion');
 
         for (const key of this.tasksStore.keys()) {
             this.addTask(key);
@@ -47,7 +47,7 @@ GOALS.TaskList = class extends GOALS.Emitter {
 
         const manualAddTask = () => {
             addTaskFn();
-            this.emit('update');
+            this.emitOut('update');
         };
 
         addTask.querySelector('button').addEventListener('click', manualAddTask);
@@ -99,7 +99,7 @@ GOALS.TaskList = class extends GOALS.Emitter {
         this.tasksStore.unset(key);
         this.tasksList.removeChild(task);
         task.util.detach();
-        this.emit('update');
-        this.emit('completion');
+        this.emitOut('update');
+        this.emitOut('completion');
     }
 };
