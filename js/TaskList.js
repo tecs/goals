@@ -40,10 +40,7 @@ GOALS.TaskList = class {
                 return false;
             }
 
-            const key = this.tasksStore.findFreeKey('');
-            this.tasksStore.set(key, {key, value});
-            this.tasksStore.commit();
-            this.addTask(key);
+            this.addTask(null, value);
         };
 
         const manualAddTask = () => {
@@ -86,8 +83,18 @@ GOALS.TaskList = class {
         this.store.commit();
     };
 
-    addTask(key)
+    /**
+     * Adds an existing or a new task to the tasklist
+     * @param {String} key
+     * @param {String} value
+     */
+    addTask(key, value)
     {
+        if (!key) {
+            key = this.tasksStore.findFreeKey('');
+            this.tasksStore.set(key, {key, value});
+            this.tasksStore.commit();
+        }
         const taskWrap = GOALS.Task.create(this.tasksStore.ns(key), this.taskList);
         this.tasksList.appendChild(taskWrap);
     }
