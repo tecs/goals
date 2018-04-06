@@ -1,6 +1,13 @@
 GOALS.Task = class {
     constructor(taskWrap, store, parentTaskList)
     {
+        // Prime an empty task
+        if (!store.has('created')) {
+            store.set('created', Date.now());
+            store.set('updated', Date.now());
+            store.set('completed', null);
+            store.commit();
+        }
         Object.assign(this, {
             taskWrap,
             store,

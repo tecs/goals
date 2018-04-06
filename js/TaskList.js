@@ -29,7 +29,7 @@ GOALS.TaskList = class {
         window.postMessage('goals.completion', '*');
 
         for (const key of this.tasksStore.keys()) {
-            this.addTask(this.tasksStore.ns(key));
+            this.addTask(key);
         }
 
         // Add task
@@ -41,16 +41,9 @@ GOALS.TaskList = class {
             }
 
             const key = this.tasksStore.findFreeKey('');
-            this.tasksStore.set(key, {
-                key,
-                value,
-                created: Date.now(),
-                updated: Date.now(),
-                completed: null
-            });
+            this.tasksStore.set(key, {key, value});
             this.tasksStore.commit();
-
-            this.addTask(this.tasksStore.ns(key));
+            this.addTask(key);
         };
 
         const manualAddTask = () => {
@@ -90,9 +83,9 @@ GOALS.TaskList = class {
         this.store.commit();
     };
 
-    addTask(store)
+    addTask(key)
     {
-        const taskWrap = GOALS.Task.create(store, this.taskList);
+        const taskWrap = GOALS.Task.create(this.tasksStore.ns(key), this.taskList);
         this.tasksList.appendChild(taskWrap);
     }
 
