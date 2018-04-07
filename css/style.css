@@ -6,11 +6,11 @@ html, body { position: relative; padding: 0; margin: 0; }
 
 .addTask > input[type=checkbox], .tasks .task > input[type=checkbox] { position: absolute; display: block; box-sizing: border-box; top: 7.5px; left: -20px; width: 15px; height: 15px; margin: 0; }
 
-.addTask > button, .tasks .task > button { position: absolute; top: 5px; right: 5px; height: 20px; z-index: 2; }
-
-.taskList { background: rgba(0, 0, 0, 0.1); }
+.addTask > button, .tasks .task > button { position: absolute; top: 5px; right: 5px; height: 20px; z-index: 3; }
 
 .tasks { padding-left: 30px; }
+
+.tasks .task > .taskOverlay { position: absolute; top: 0; right: 0; height: 30px; width: 100%; z-index: 2; cursor: pointer; }
 
 .tasks .task > input[type=text] { border: 1px solid transparent; background: transparent; }
 
@@ -22,6 +22,12 @@ html, body { position: relative; padding: 0; margin: 0; }
 
 .tasks .task:span > button { display: none; }
 
-.tasks .task > button { display: none; }
+.taskWrap > .taskList { background: rgba(0, 0, 0, 0.1); display: none; }
 
-.tasks .task:hover > button { display: block; }
+.taskWrap > .task > button { display: none; }
+
+.taskWrap.open > .taskList { display: block; }
+
+.taskWrap.open > .task .taskOverlay { width: 90%; }
+
+.taskWrap.open > .task:hover > button { display: block; }

@@ -23,10 +23,11 @@ GOALS.Task = class extends GOALS.Emitter {
         Object.assign(this, {
             store,
             taskList: GOALS.TaskList.create(store, this),
-            task: this.taskWrap.querySelector('div'),
+            task: this.taskWrap.querySelector('div.task'),
             taskInput: this.taskWrap.querySelector('input[type=text]'),
             completion: this.taskWrap.querySelector('span'),
-            checkbox: this.taskWrap.querySelector('input[type=checkbox]')
+            checkbox: this.taskWrap.querySelector('input[type=checkbox]'),
+            overlay: this.taskWrap.querySelector('div.taskOverlay')
         });
 
         // Fill data
@@ -52,6 +53,9 @@ GOALS.Task = class extends GOALS.Emitter {
 
         // Complete task
         this.checkbox.addEventListener('change', () => this.complete());
+
+        // Collapse
+        this.overlay.addEventListener('click', () => this.taskWrap.classList.toggle('open'));
 
         this._initialize();
     }
