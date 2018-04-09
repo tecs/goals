@@ -58,6 +58,11 @@ GOALS.Task = class extends GOALS.Emitter {
         // Collapse
         this.overlay.addEventListener('click', () => this.taskWrap.classList.toggle('open'));
 
+        // Drag and drop
+        this.taskWrap.addEventListener('dragstart', e => this.dragStart(e));
+        this.taskWrap.addEventListener('dragover', e => this.dragOver(e));
+        this.taskWrap.addEventListener('drop', e => this.drop(e));
+
         this._initialize();
     }
 
@@ -144,6 +149,90 @@ GOALS.Task = class extends GOALS.Emitter {
         this.store.set('completed', this.checkbox.checked ? Date.now() : null);
         this.emitOut('update');
         this.emitOut('completion');
+    }
+
+    /**
+     * Drag task handler
+     * @param {DragEvent} e
+     */
+    dragStart(e)
+    {
+        e.stopPropagation();
+
+        e.dataTransfer.setData(this.taskWrap.id, this.taskWrap.id);
+        e.dataTransfer.setData('text/plain', this.taskWrap.id);
+    }
+
+    /**
+     * Drag task over handler
+     * @param {DragEvent} e
+     */
+    dragOver(e)
+    {
+        e.preventDefault();
+        e.stopPropagation();
+
+        e.dataTransfer.dropEffect = 'none';
+
+        const from = GOALS.ui(e.dataTransfer.types.filter(t => t !== 'text/plain'));
+
+        const state = this.getDragState(this.taskWrap, from, e);
+
+        if (!state.canDrop) {
+            return false;
+        }
+
+        e.dataTransfer.dropEffect = 'move';
+    }
+
+    /**
+     * Drop task handler
+     * @param {DragEvent} e
+     */
+    drop(e)
+    {
+        e.stopPropagation();
+        e.preventDefault();
+
+        const from = GOALS.ui(e.dataTransfer.getData('text/plain'));
+
+        const state = this.getDragState(this.taskWrap, from, e);
+
+        if (!state.canDrop) {
+            return false;
+        }
+
+        if (state.before) {
+            return this.taskWrap.parentElement.insertBefore(from, this.taskWrap);
+        }
+        this.taskWrap.parentElement.insertBefore(from, this.taskWrap.nextSibling);
+    }
+
+    /**
+     * Calculates the drag relation between the two elements
+     * @param {HTMLElement} dropElement
+     * @param {HTMLElement} dragElement
+     * @param {DragEvent} e
+     * @returns {Object}
+     */
+    getDragState(dropElement, dragElement, e)
+    {
+        const children = this.parent.taskElements;
+        const dropIndex = children.indexOf(dropElement);
+        const dragIndex = children.indexOf(dragElement);
+        const heightThreshold = dropElement.clientHeight / 2;
+
+        const out = {
+            canDrop: dropElement !== dragElement && dragIndex !== -1,
+            after: e.offsetY >= heightThreshold,
+            before: e.offsetY < heightThreshold
+        };
+
+        if ((dragIndex - 1 === dropIndex && out.after) || (dragIndex + 1 === dropIndex && out.before)) {
+            out.canDrop = false;
+        }
+
+        return out;
     }
 
     /**
