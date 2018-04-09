@@ -103,6 +103,9 @@ GOALS.Task = class extends GOALS.Emitter {
         return out;
     }
 
+    /**
+     * Edit task handler
+     */
     edit()
     {
         const value = this.taskInput.value.trim();
@@ -118,6 +121,9 @@ GOALS.Task = class extends GOALS.Emitter {
         }
     }
 
+    /**
+     * Delete task handler
+     */
     delete()
     {
         let message = 'Are you sure you want to delete this task';
@@ -130,6 +136,9 @@ GOALS.Task = class extends GOALS.Emitter {
         }
     }
 
+    /**
+     * Complete task handler
+     */
     complete()
     {
         this.store.set('completed', this.checkbox.checked ? Date.now() : null);
@@ -137,12 +146,18 @@ GOALS.Task = class extends GOALS.Emitter {
         this.emitOut('completion');
     }
 
+    /**
+     * Updates the completion text on `completion` events
+     */
     async completionListener()
     {
         await this.initialized;
         this.completion.innerText = this.calculateCompletion();
     }
 
+    /**
+     * Bumps the `updated` timestamp on `update` events
+     */
     async updateListener()
     {
         this.store.set('updated', Date.now());
