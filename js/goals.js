@@ -17,6 +17,26 @@ const GOALS = {
     })(),
 
     /**
+     * Generates a new UUID
+     * @returns {String}
+     */
+    id: (() => {
+        let i;
+
+        const random = () => Math.round(Math.random() * 1e12);
+        const inc = () => i < 1e12 ? ++i : i = 0;
+
+        i = random();
+
+        return () => {
+            return [Date.now(), inc(), random()]
+                .map(number => `${number.toString(16)}`.slice(-11))
+                .map(hex => `00000000000${hex}`.slice(-11))
+                .join('-');
+        }
+    })(),
+
+    /**
      * Instantiates and returns the specified template.
      * @param {String} name
      * @returns {HTMLElement}

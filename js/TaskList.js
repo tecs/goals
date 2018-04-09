@@ -14,6 +14,7 @@ GOALS.TaskList = class extends GOALS.Emitter {
         }
 
         this.taskList = GOALS.template('taskList');
+        this.taskList.id = GOALS.id();
         this.taskList.util = this;
 
         Object.assign(this, {

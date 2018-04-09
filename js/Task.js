@@ -18,6 +18,7 @@ GOALS.Task = class extends GOALS.Emitter {
         }
 
         this.taskWrap = GOALS.template('task');
+        this.taskWrap.id = GOALS.id();
         this.taskWrap.util = this;
 
         Object.assign(this, {
