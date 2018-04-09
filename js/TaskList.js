@@ -64,6 +64,18 @@ GOALS.TaskList = class extends GOALS.Emitter {
         return this.taskList;
     }
 
+    /** @returns {HTMLElement[]} */
+    get taskElements()
+    {
+        return [...this.tasksList.children];
+    }
+
+    /** @returns {GOALS.Task[]} */
+    get tasks()
+    {
+        return this.taskElements.map(task => task.util);
+    }
+
     /**
      * Adds an existing or a new task to the tasklist
      * @param {String} key
@@ -92,7 +104,7 @@ GOALS.TaskList = class extends GOALS.Emitter {
      */
     removeTask(key)
     {
-        const task = [...this.tasksList.children].filter(task => task.util.store.get('key') === key)[0];
+        const task = this.taskElements.filter(task => task.util.store.get('key') === key)[0];
         this.tasksStore.unset(key);
         this.tasksList.removeChild(task);
         task.util.detach();
