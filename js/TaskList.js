@@ -31,8 +31,9 @@ GOALS.TaskList = class extends GOALS.Emitter {
         // Notify the whole task tree so completion is updated
         this.emitOutButSelf('completion');
 
-        for (const key of this.tasksStore.keys()) {
-            this.addTask(key);
+        const taskStores = this.tasksStore.keys().map(key => this.tasksStore.ns(key));
+        for (const taskStore of taskStores.sort((a, b) => a.get('order') > b.get('order') ? 1 : -1)) {
+            this.addTask(taskStore.get('key'));
         }
 
         const manualAddTask = () => {
@@ -90,9 +91,10 @@ GOALS.TaskList = class extends GOALS.Emitter {
                 return false;
             }
 
-            this.tasksStore.set(key, {key, value});
+            this.tasksStore.set(key, {key, value, order: this.tasksStore.keys().length});
             this.tasksStore.commit();
         }
+
         const taskWrap = GOALS.Task.create(this.tasksStore.ns(key), this);
         this.tasksList.appendChild(taskWrap.element);
         return true;
@@ -105,6 +107,13 @@ GOALS.TaskList = class extends GOALS.Emitter {
     removeTask(key)
     {
         const task = this.taskElements.filter(task => task.util.store.get('key') === key)[0];
+        const order = this.tasksStore.get(key).order;
+        this.children.forEach(task => {
+            const taskOrder = task.store.get('order');
+            if (taskOrder > order) {
+                task.store.set('order', taskOrder - 1);
+            }
+        });
         this.tasksStore.unset(key);
         this.tasksList.removeChild(task);
         task.util.detach();
