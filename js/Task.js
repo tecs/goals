@@ -12,9 +12,8 @@ GOALS.Task = class extends GOALS.Emitter {
         // Prime an empty task
         if (!store.has('created')) {
             store.set('created', Date.now());
-            store.set('updated', Date.now());
             store.set('completed', null);
-            store.commit();
+            this.emitOut('update');
         }
 
         this.taskWrap = GOALS.template('task');
