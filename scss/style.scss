@@ -116,4 +116,12 @@ html, body {
             display: block;
         }
     }
+
+    &.dropBefore {
+        border-top: 2px dashed rgba(0, 0, 0, 0.5);
+    }
+
+    &.dropAfter {
+        border-bottom: 2px dashed rgba(0, 0, 0, 0.5);
+    }
 }

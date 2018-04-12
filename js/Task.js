@@ -60,6 +60,7 @@ GOALS.Task = class extends GOALS.Emitter {
         // Drag and drop
         this.taskWrap.addEventListener('dragstart', e => this.dragStart(e));
         this.taskWrap.addEventListener('dragover', e => this.dragOver(e));
+        this.taskWrap.addEventListener('dragleave', e => this.dragLeave(e));
         this.taskWrap.addEventListener('drop', e => this.drop(e));
 
         this._initialize();
@@ -182,6 +183,27 @@ GOALS.Task = class extends GOALS.Emitter {
         }
 
         e.dataTransfer.dropEffect = 'move';
+
+        const classNames = ['dropBefore', 'dropAfter'];
+        const add = state.after ? 1 : 0;
+        const remove = 1 - add;
+        if (!this.element.classList.contains(classNames[add])) {
+            this.element.classList.add(classNames[add]);
+        }
+        this.element.classList.remove(classNames[remove]);
+    }
+
+    /**
+     * Drag task leave handler
+     * @param {DragEvent} e
+     */
+    dragLeave(e)
+    {
+        e.preventDefault();
+        e.stopPropagation();
+
+        this.element.classList.remove('dropBefore');
+        this.element.classList.remove('dropAfter');
     }
 
     /**

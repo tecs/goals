@@ -31,3 +31,7 @@ html, body { position: relative; padding: 0; margin: 0; }
 .taskWrap.open > .task .taskOverlay { width: 90%; }
 
 .taskWrap.open > .task:hover > button { display: block; }
+
+.taskWrap.dropBefore { border-top: 2px dashed rgba(0, 0, 0, 0.5); }
+
+.taskWrap.dropAfter { border-bottom: 2px dashed rgba(0, 0, 0, 0.5); }
