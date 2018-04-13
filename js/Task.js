@@ -13,6 +13,7 @@ GOALS.Task = class extends GOALS.Emitter {
         if (!store.has('created')) {
             store.set('created', Date.now());
             store.set('completed', null);
+            store.set('open', false);
             this.emitOut('update');
         }
 
@@ -22,7 +23,6 @@ GOALS.Task = class extends GOALS.Emitter {
 
         Object.assign(this, {
             store,
-            taskList: GOALS.TaskList.create(store, this),
             task: this.taskWrap.querySelector('div.task'),
             taskInput: this.taskWrap.querySelector('input[type=text]'),
             completion: this.taskWrap.querySelector('span'),
@@ -30,9 +30,18 @@ GOALS.Task = class extends GOALS.Emitter {
             overlay: this.taskWrap.querySelector('div.taskOverlay')
         });
 
+        this.taskList = GOALS.TaskList.create(store, this);
+
+
         // Fill data
         this.taskInput.value = store.get('value');
         this.checkbox.checked = !!store.get('completed');
+
+        this.store.set('open', this.isOpen);
+        this.store.commit();
+        if (this.store.get('open')) {
+            this.taskWrap.classList.toggle('open');
+        }
 
         // Construct DOM
         const taskListAddTask = this.taskList.element.querySelector('input[type=text]');
@@ -55,7 +64,7 @@ GOALS.Task = class extends GOALS.Emitter {
         this.checkbox.addEventListener('change', () => this.complete());
 
         // Collapse
-        this.overlay.addEventListener('click', () => this.taskWrap.classList.toggle('open'));
+        this.overlay.addEventListener('click', () => this.collapse());
 
         // Drag and drop
         this.taskWrap.addEventListener('dragstart', e => this.dragStart(e));
@@ -87,6 +96,28 @@ GOALS.Task = class extends GOALS.Emitter {
     get subtasks()
     {
         return this.taskList ? this.taskList.children : [];
+    }
+
+    /** @returns {GOALS.Task} */
+    get parentTask()
+    {
+        return this.parent.parent;
+    }
+
+    /** @returns {Boolean} */
+    get isOpen()
+    {
+        return this.store.get('open') && (this.parentTask ? this.parentTask.isOpen : true);
+    }
+
+    /**
+     * Toggles the task state between collapsed and expanded
+     */
+    collapse()
+    {
+        this.taskWrap.classList.toggle('open');
+        this.store.set('open', this.taskWrap.classList.contains('open'));
+        this.store.commit();
     }
 
     /**
