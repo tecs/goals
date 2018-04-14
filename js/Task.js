@@ -32,10 +32,13 @@ GOALS.Task = class extends GOALS.Emitter {
 
         this.taskList = GOALS.TaskList.create(store, this);
 
-
         // Fill data
         this.taskInput.value = store.get('value');
         this.checkbox.checked = !!store.get('completed');
+
+        if (this.parentTask && this.previousTask && !this.previousTask.checkbox.checked) {
+            this.checkbox.disabled = true;
+        }
 
         this.store.set('open', this.isOpen);
         this.store.commit();
@@ -98,10 +101,32 @@ GOALS.Task = class extends GOALS.Emitter {
         return this.taskList ? this.taskList.children : [];
     }
 
+    /** @returns {GOALS.Task[]} */
+    get siblings()
+    {
+        return this.parent.children;
+    }
+
     /** @returns {GOALS.Task} */
     get parentTask()
     {
         return this.parent.parent;
+    }
+
+    get previousTask()
+    {
+        const index = this.siblings.indexOf(this);
+        if (index) {
+            return this.siblings[index - 1];
+        }
+    }
+
+    get nextTask()
+    {
+        const index = this.siblings.indexOf(this);
+        if (index + 1 < this.siblings.length) {
+            return this.siblings[index + 1];
+        }
     }
 
     /** @returns {Boolean} */
@@ -168,6 +193,9 @@ GOALS.Task = class extends GOALS.Emitter {
         }
         if (confirm(`${message}?`)) {
             const key = this.store.get('key');
+            if (this.nextTask && !this.checkbox.disabled) {
+                this.nextTask.checkbox.disabled = false;
+            }
             this.parent.removeTask(key);
         }
     }
@@ -178,6 +206,9 @@ GOALS.Task = class extends GOALS.Emitter {
     complete()
     {
         this.store.set('completed', this.checkbox.checked ? Date.now() : null);
+        if (this.nextTask) {
+            this.nextTask.checkbox.disabled = !this.checkbox.checked;
+        }
         this.emitOut('update');
         this.emitOut('completion');
     }
@@ -301,6 +332,7 @@ GOALS.Task = class extends GOALS.Emitter {
      */
     async updateListener()
     {
+        await this.store;
         this.store.set('updated', Date.now());
         this.store.commit();
     }
