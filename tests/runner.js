@@ -5,7 +5,8 @@ require('../gulpfile');
 
 gulp.start('webserver');
 
-const pagePromise = puppeteer.launch({executablePath: '/usr/bin/chromium-browser'})
+const browserPromise = puppeteer.launch({executablePath: '/usr/bin/chromium-browser'});
+const pagePromise = browserPromise
     .then(browser => browser.newPage())
     .then(async page => {
         let loaded = true;
@@ -21,7 +22,10 @@ beforeAll(async done => {
     done();
 }, 20000);
 
-afterAll(() => gulp.start('webserver-kill'));
+afterAll(() => {
+    gulp.start('webserver-kill');
+    browserPromise.then(browser => browser.close());
+});
 
 const setup = name => () => require(`./${name}`)(
     pagePromise.then(async page => {
