@@ -332,7 +332,7 @@ GOALS.Task = class extends GOALS.Emitter {
      */
     async updateListener()
     {
-        await this.store;
+        await this.initialized;
         this.store.set('updated', Date.now());
         this.store.commit();
     }
