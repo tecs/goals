@@ -117,6 +117,9 @@ GOALS.TaskList = class extends GOALS.Emitter {
         this.tasksStore.unset(key);
         this.tasksList.removeChild(task);
         task.util.detach();
+        if (!this.parent) {
+            return this.store.commit();
+        }
         this.emitOut('update');
         this.emitOut('completion');
     }
