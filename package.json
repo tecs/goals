@@ -5,11 +5,15 @@
   "main": "index.html",
   "scripts": {
     "dev": "gulp watch",
+    "start": "gulp webserver",
     "test": "jest"
   },
   "jest": {
-    "collectCoverage": true,
-    "collectCoverageFrom": ["js/*.js"],
+    "preset": "jest-puppeteer",
+    "collectCoverage": false,
+    "collectCoverageFrom": [
+      "js/*.js"
+    ],
     "testRegex": "tests/runner.js"
   },
   "repository": {
