@@ -59,9 +59,15 @@ const GOALS = {
                 callback();
             }
         });
-    }
+    },
+
+    onLoad() {
+        const templates = document.getElementById('templates');
+        if (!templates?.import) {
+            return setTimeout(GOALS.onLoad, 50);
+        }
+        document.body.appendChild(GOALS.TaskList.create(GOALS.store, null).element);
+    },
 };
 
-window.addEventListener('load', () => {
-    document.body.appendChild(GOALS.TaskList.create(GOALS.store, null).element);
-});
+window.addEventListener('load', GOALS.onLoad);

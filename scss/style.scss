@@ -1,9 +1,9 @@
 $taskHeight: 30px;
 $indentation: $taskHeight;
-$inputPadding: $taskHeight / 6;
+$inputPadding: calc($taskHeight / 6);
 $fgColor: black;
 $bgColor: white;
-$iconSize: $taskHeight / 2;
+$iconSize: calc($taskHeight / 2);
 
 html, body {
     position: relative;
@@ -32,7 +32,7 @@ html, body {
         position: absolute;
         display: block;
         box-sizing: border-box;
-        top: ($taskHeight - $iconSize) / 2;
+        top: calc(($taskHeight - $iconSize) / 2);
         left: -($iconSize + $inputPadding);
         width: $iconSize;
         height: $iconSize;
